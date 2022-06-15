@@ -53,14 +53,14 @@ def segment_files(filename, alllines, segmentlength, max_num_segments):
         segmentids.append(segmentid)
     else:
         numsegments = int(len(alllines) / segmentlength)
-        for i in range(0, numsegments):
+        for i in range(numsegments):
             segmentid = filename + "-" + "{:04d}".format(i)
             segmentids.append(segmentid)
             segment = alllines[i * segmentlength:(i + 1) * segmentlength]
             segments.append(segment)
         if max_num_segments != -1 and numsegments > max_num_segments:
             #chosen_ids = sorted(np.random.randint(0, numsegments, max_num_segments))
-            chosen_ids = sorted(random.sample(range(0, numsegments), max_num_segments))
+            chosen_ids = sorted(random.sample(range(numsegments), max_num_segments))
             #print(chosen_ids)
             segments = [segments[i] for i in chosen_ids]
             segmentids = [segmentids[i] for i in chosen_ids]
@@ -103,23 +103,26 @@ def perform_selection(segment, stoplist, featuretype):
         elif forms == "pos":
             selected = [line[1].lower() for line in segment if
                         len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and line[2] not in stoplist]
-    elif pos != "all":
-        ## TODO: Turn the test "pos in line[1]" around to allow for more than one POS tag to be defined as the filter.
-        if forms == "words":
-            selected = [line[0].lower() for line in segment if
-                        len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist]
-        elif forms == "pos":
-            selected = [line[1].lower() for line in segment if
-                        len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist]
-        elif forms == "lemmata":
-            selected = []
-            for line in segment:
-                if len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist and line[2] != "<unknown>":
-                    selected.append(line[2])
-                elif len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist and line[2] == "<unknown>":
-                    selected.append(line[0])
-    else:
+    elif forms == "words":
+        selected = [line[0].lower() for line in segment if
+                    len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist]
+    elif forms == "pos":
+        selected = [line[1].lower() for line in segment if
+                    len(line) == 3 and len(line[0]) > 1 and line[0] not in stoplist and pos in line[1] and line[2] not in stoplist]
+    elif forms == "lemmata":
         selected = []
+        for line in segment:
+            if (
+                len(line) == 3
+                and len(line[0]) > 1
+                and line[0] not in stoplist
+                and pos in line[1]
+                and line[2] not in stoplist
+            ):
+                if line[2] == "<unknown>":
+                    selected.append(line[0])
+                else:
+                    selected.append(line[2])
     selected = list(selected)
     return selected
 
@@ -149,8 +152,7 @@ def select_features(segmentfolder, segmentids, segments, stoplistfile, features)
 def read_plaintext(file):
     with open(file, "r", encoding="utf-8") as infile:
         text = infile.read().split(" ")
-        features = [form for form in text if form]
-        return features
+        return [form for form in text if form]
 
 
 
@@ -248,15 +250,16 @@ def main(taggedfolder, segmentfolder, datafolder, dtmfolder, segmentlength, max_
         os.makedirs(datafolder)
     if not os.path.exists(dtmfolder):
         os.makedirs(dtmfolder)
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
     print("\n--prepare")
     import shutil
     if os.path.exists(segmentfolder):
         shutil.rmtree(segmentfolder)
-    counter = 0
-    for file in glob.glob(taggedfolder + "*.csv"):
+    for counter, file in enumerate(glob.glob(taggedfolder + "*.csv"), start=1):
         filename, ext = os.path.basename(file).split(".")
-        counter +=1
         print("next: file no", counter, "- file", filename)
         segmentids, segments = make_segments(file, segmentfolder, segmentlength, max_num_segments)
         select_features(segmentfolder, segmentids, segments, stoplistfile, featuretype)

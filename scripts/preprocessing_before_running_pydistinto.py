@@ -5,6 +5,7 @@ Created on Mon Jul 19 00:55:31 2021
 @author: KeliDu
 """
 
+
 """
 The pyzeta set of script is a Python implementation of Craig's Zeta and related measures.
 Zeta is a measure of keyness or distinctiveness for contrastive analysis of two groups of texts.
@@ -51,7 +52,7 @@ metadatafile = join(datadir, "metadata.csv")
 stoplistfile = join(datadir, "stoplist.txt")
 
 # It is recommended not to change these
-outputdir = join(workdir, "output_" + os.path.basename(datadir))
+outputdir = join(workdir, f"output_{os.path.basename(datadir)}")
 taggedfolder = join(outputdir, "tagged", "")
 segmentfolder = join(outputdir, "segments1000", "")
 datafolder = join(outputdir, "results", "")

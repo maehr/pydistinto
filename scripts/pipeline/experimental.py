@@ -98,7 +98,7 @@ def make_barchart(zetadata, comparisonplotfile, parameterstring, contraststring,
                      title=("Vergleich von Zetawort-Listen nach Rang"),
                      y_title="Inverser Rang der \n" + str(numfeatures) + " distinktivsten Merkmale",
                      x_title="Vergleich von: " + comparison[0] + " (grau) und " + comparison[1] + " (farbig)")
-    for i in range(0, numfeatures):
+    for i in range(numfeatures):
         plot.add(zetadata.iloc[i, 0], [{"value": zetadata.iloc[i, 3], "color": "darkslategrey"}])
         if zetadata.iloc[i, 3] < zetadata.iloc[i, 4]:
             color = "darkgreen"
@@ -114,8 +114,11 @@ def make_barchart(zetadata, comparisonplotfile, parameterstring, contraststring,
 def comparisonplot(resultsfolder, plotfolder, comparison, numfeatures, segmentlength, featuretype, contrast):
     print("--barchart (comparison)")
     # Define some strings and filenames
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring + "_" + contraststring + ".csv"
     comparisonplotfile = plotfolder + "comparisonbarchart_" + parameterstring + "_" + contraststring + "_" + str(
         numfeatures) + "-" + str(comparison[0]) + "-" + str(comparison[1]) + ".svg"
@@ -134,8 +137,11 @@ def comparisonplot(resultsfolder, plotfolder, comparison, numfeatures, segmentle
 
 def get_correlation(resultsfolder, comparison, numfeatures, segmentlength, featuretype, contrast):
     print("--correlation_measures (comparison)")
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring + "_" + contraststring + ".csv"
 
     # Get the data and compare it
@@ -211,8 +217,11 @@ def make_dendrogram(resultsfolder, comparison, numfeatures, segmentlength, featu
     This function creates a dendrogram from the results of the Zeta versions
     """
     # Prepare parameters
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring + "_" + contraststring + ".csv"
     # Get the data and compare it
     zetadata = get_zetadata_multiple(resultsfile, comparison, numfeatures)
@@ -230,7 +239,7 @@ def make_dendrogram(resultsfolder, comparison, numfeatures, segmentlength, featu
     # Mark the cuts in the tree that signify two or three clusters
     plt.xlabel("Cluster distance")
     plt.ylabel("Zeta variants (short labels)")
-    plt.title("Hierarchical Cluster (Ward, " + str(numfeatures) + " words)")
+    plt.title(f"Hierarchical Cluster (Ward, {str(numfeatures)} words)")
 
     zetaplotfile = plotfolder + "Dendrogram_" + parameterstring +"_"+ contraststring +"_" + str(numfeatures) +".svg"
     plt.savefig(zetaplotfile)
@@ -242,8 +251,11 @@ def make_tsne(resultsfolder, comparison, numfeatures, segmentlength, featuretype
     """
 
     # Prepare parameters
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring + "_" + contraststring + ".csv"
     # Get the data and compare it
     zetadata = get_zetadata_multiple(resultsfile, comparison, numfeatures)
@@ -269,7 +281,7 @@ def make_tsne(resultsfolder, comparison, numfeatures, segmentlength, featuretype
     plt.xlabel("t-SNE feature 0")
     plt.xlabel("t-SNE feature 1")
 
-    plt.title("t-SNE (" + str(numfeatures) + " words)")
+    plt.title(f"t-SNE ({str(numfeatures)} words)")
 
     zetaplotfile = plotfolder + "tSNE_" + parameterstring +"_"+ contraststring +"_" + str(numfeatures) +".svg"
     plt.savefig(zetaplotfile)
@@ -279,8 +291,11 @@ def clustering_kmeans(resultsfolder, comparison, numfeatures, segmentlength, fea
     This function creates the clusters from the file with the results.
     """
     # Prepare parameters
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring + "_" + contraststring + ".csv"
     # Get the data and compare it
     zetadata = get_zetadata_multiple(resultsfile, comparison, numfeatures)
@@ -310,11 +325,14 @@ def clustering_kmeans(resultsfolder, comparison, numfeatures, segmentlength, fea
     '''
 
 def cluster_correlation(resultsfolder, segmentlength, featuretype, contrast, plotfolder, comparison):
-    parameterstring = str(segmentlength) + "-" + str(featuretype[0]) + "-" + str(featuretype[1])
-    contraststring = str(contrast[0]) + "_" + str(contrast[2]) + "-" + str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     file = resultsfolder + "correlation_" + parameterstring + "_" + contraststring + ".csv"
     correlation = pd.read_csv(file, encoding="utf-8", sep="\t")
-    
+
     tests = {
     "RBO": 1,
     "Kendall's Tau": 1,
@@ -342,17 +360,17 @@ def cluster_correlation(resultsfolder, segmentlength, featuretype, contrast, plo
                     df_symmetrical.loc[measure1, measure2] = value
         file = resultsfolder +"/matrix/"+ test+"_matrix_" + parameterstring + "_" + contraststring + ".csv"
         df_symmetrical.to_csv(file, sep='\t', encoding='utf-8', index=True)
-        
+
         linkage_array = ward(df_symmetrical)
-        
+
         plt.figure(figsize=(8, 6))
-    
+
         dendrogram(linkage_array, labels=df_symmetrical.columns, orientation="left")
-    
+
         # Mark the cuts in the tree that signify two or three clusters
         plt.xlabel("Cluster distance")
         plt.ylabel("Zeta variants")
         plt.title("Clustering based on "+test+" correlations")# (" + str(segmentlength) + " words)")
-    
+
         zetaplotfile = plotfolder + "Dendrogram_correlation_"+test+"_"+parameterstring +"_"+ contraststring +"_" + str(segmentlength) +".svg"
         plt.savefig(zetaplotfile)

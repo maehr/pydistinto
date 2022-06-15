@@ -66,19 +66,22 @@ def get_zetadata(resultsfile, measure, numfeatures, droplist):
 def make_barchart(zetadata, zetaplotfile, parameterstring, contraststring, measure, numfeatures):
     range_min = min(zetadata[measure]) * 1.1
     range_max = max(zetadata[measure]) * 1.1
-    plot = pygal.HorizontalBar(style = zeta_style,
-                               print_values = False,
-                               print_labels = True,
-                               show_legend = False,
-                               range = (range_min, range_max),
-                               title = ("Contrastive Analysis with " + str(measure) + "\n("+contraststring+")"),
-                               y_title = str(numfeatures) + " distinctive features",
-                               x_title = "Parameters: "+ measure +"-"+ parameterstring)
+    plot = pygal.HorizontalBar(
+        style=zeta_style,
+        print_values=False,
+        print_labels=True,
+        show_legend=False,
+        range=(range_min, range_max),
+        title=f"Contrastive Analysis with {str(measure)}"
+        + "\n("
+        + contraststring
+        + ")",
+        y_title=f"{str(numfeatures)} distinctive features",
+        x_title="Parameters: " + measure + "-" + parameterstring,
+    )
+
     for i in range(len(zetadata)):
-        if i < numfeatures:
-            color = "#29a329"
-        else:
-            color = "#60799f"
+        color = "#29a329" if i < numfeatures else "#60799f"
         '''
         if zetadata.iloc[i, 1] > 0.8:
             color = "#00cc00"
@@ -111,31 +114,33 @@ def zetabarchart(segmentlength, featuretype, contrast, measures, numfeatures, dr
     print("--barchart (zetascores)")
     if not os.path.exists(plotfolder):
         os.makedirs(plotfolder)
-    parameterstring = str(segmentlength) +"-"+ str(featuretype[0]) +"-"+ str(featuretype[1])
-    contraststring = str(contrast[0]) +"_"+ str(contrast[2]) +"-"+ str(contrast[1])
-    resultsfile = resultsfolder + "results_" + parameterstring +"_"+ contraststring +".csv"
-    
-    html_file = open(plotfolder + "merged_results_" + str(segmentlength) + ".html",'w',encoding='utf-8')
-    html_file.write("<html><head>merged distinctive analysis results</head><body>"+"\n")
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
 
-    for measure in measures:
-        # Define some strings and filenames
-        zetaplotfile = plotfolder + "zetabarchart_" + parameterstring +"_"+ contraststring +"_" + str(numfeatures) +"-"+str(measure) + ".svg"
-        if not os.path.exists(plotfolder):
-            os.makedirs(plotfolder)
-        # Get the data and plot it
-        zetadata = get_zetadata(resultsfile, measure, numfeatures, droplist)
-        try:
-            make_barchart(zetadata, zetaplotfile, parameterstring, contraststring, measure, numfeatures)
-        except:
-            print("Something went wrong while vasualizing " + measure)
-            with open(zetaplotfile, 'w', encoding='utf-8') as fout:
-                fout.write("Something went wrong while vasualizing " + measure)
-                fout.close()
-        html_file.write('      <object type="image/svg+xml" data="' + zetaplotfile + '"></object>' + '\n' )
-    
-    html_file.write("</body></html>")
-    html_file.close()
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
+    resultsfile = resultsfolder + "results_" + parameterstring +"_"+ contraststring +".csv"
+
+    with open(plotfolder + "merged_results_" + str(segmentlength) + ".html",'w',encoding='utf-8') as html_file:
+        html_file.write("<html><head>merged distinctive analysis results</head><body>"+"\n")
+
+        for measure in measures:
+            # Define some strings and filenames
+            zetaplotfile = plotfolder + "zetabarchart_" + parameterstring +"_"+ contraststring +"_" + str(numfeatures) +"-"+str(measure) + ".svg"
+            if not os.path.exists(plotfolder):
+                os.makedirs(plotfolder)
+            # Get the data and plot it
+            zetadata = get_zetadata(resultsfile, measure, numfeatures, droplist)
+            try:
+                make_barchart(zetadata, zetaplotfile, parameterstring, contraststring, measure, numfeatures)
+            except:
+                print("Something went wrong while vasualizing " + measure)
+                with open(zetaplotfile, 'w', encoding='utf-8') as fout:
+                    fout.write("Something went wrong while vasualizing " + measure)
+                    fout.close()
+            html_file.write('      <object type="image/svg+xml" data="' + zetaplotfile + '"></object>' + '\n' )
+
+        html_file.write("</body></html>")
 '''
 
 def zetabarchart(segmentlength, featuretype, contrast, measures, numfeatures, droplist, resultsfolder, plotfolder):
@@ -193,9 +198,8 @@ def get_scores(resultsfile, numfeatures, measure):
         zetascores.sort_values(by=measure, ascending=False, inplace=True)
         positivescores = zetascores.head(numfeatures)
         negativescores = zetascores.tail(numfeatures)
-        scores = pd.concat([positivescores, negativescores])
         #print(scores.head())
-        return scores
+        return pd.concat([positivescores, negativescores])
 
 
 def make_data(scores, measure):
@@ -207,15 +211,18 @@ def make_data(scores, measure):
 
 
 def make_typesplot(types, propsone, propstwo, zetas, numfeatures, cutoff, contrast, measure, typescatterfile):
-    plot = pygal.XY(style=zeta_style,
-                    show_legend=False,
-                    range=(0, 1),
-                    show_y_guides=True,
-                    show_x_guides=True,
-                    title="Document proportions and " + str(measure),
-                    x_title="document proportions in " + str(contrast[1]),
-                    y_title="document proportions in " + str(contrast[2]))
-    for i in range(0, numfeatures * 2):
+    plot = pygal.XY(
+        style=zeta_style,
+        show_legend=False,
+        range=(0, 1),
+        show_y_guides=True,
+        show_x_guides=True,
+        title=f"Document proportions and {str(measure)}",
+        x_title=f"document proportions in {str(contrast[1])}",
+        y_title=f"document proportions in {str(contrast[2])}",
+    )
+
+    for i in range(numfeatures * 2):
         if zetas[i] > cutoff:
             color = "green"
             size = 4
@@ -225,9 +232,18 @@ def make_typesplot(types, propsone, propstwo, zetas, numfeatures, cutoff, contra
         else:
             color = "grey"
             size = 3
-        plot.add(str(types[i]), [
-            {"value": (propsone[i], propstwo[i]), "label": "zeta " + str(zetas[i]), "color": color,
-             "node": {"r": size}}])
+        plot.add(
+            str(types[i]),
+            [
+                {
+                    "value": (propsone[i], propstwo[i]),
+                    "label": f"zeta {str(zetas[i])}",
+                    "color": color,
+                    "node": {"r": size},
+                }
+            ],
+        )
+
         plot.add("orientation", [(0, 0.3), (0.7, 1)], stroke=True, show_dots=False,
                  stroke_style={'width': 0.3, 'dasharray': '2, 6'})
         plot.add("orientation", [(0, 0.6), (0.4, 1)], stroke=True, show_dots=False,
@@ -246,8 +262,11 @@ def typescatterplot(numfeatures, cutoff, contrast, segmentlength, featuretype, m
     Function to make a scatterplot with the type proprtion data.
     """
     print("--typescatterplot (types)")
-    parameterstring = str(segmentlength) +"-"+ str(featuretype[0]) +"-"+ str(featuretype[1])
-    contraststring = str(contrast[0]) +"_"+ str(contrast[2]) +"-"+ str(contrast[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     resultsfile = resultsfolder + "results_" + parameterstring +"_"+ contraststring +".csv"
     typescatterfile = plotfolder + "typescatterplot_" + parameterstring +"_"+ contraststring +"_" +str(numfeatures) +"-" + str(cutoff) +"-"+str(measure)+".svg"
     if not os.path.exists(plotfolder):

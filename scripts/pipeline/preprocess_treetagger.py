@@ -47,8 +47,7 @@ def run_treetagger(text, language):
     Returns a treetagger tagged object. 
     """
     tagger = treetaggerwrapper.TreeTagger(TAGLANG=language)
-    tagged = tagger.tag_text(text)
-    return tagged
+    return tagger.tag_text(text)
 
 
 def save_tagged(taggedfolder, filename, tagged):
@@ -63,7 +62,7 @@ def save_tagged(taggedfolder, filename, tagged):
             writer.writerow(item)
 
 
-def sanity_check(text, tagged): 
+def sanity_check(text, tagged):
     """
     Performs a simple sanity check on the data. 
     Checks number of words in inpu text. 
@@ -72,10 +71,10 @@ def sanity_check(text, tagged):
     """
     text = re.sub("([,.:;!?])", " \1", text)
     text = re.split("\s+", text)
-    print("number of words", len(text)) 
-    print(text[0:10])
+    print("number of words", len(text))
+    print(text[:10])
     print("number of lines", len(tagged))
-    print(tagged[0:10])
+    print(tagged[:10])
     if len(tagged) == 0: 
         print("Sanity check: Tagging error: nothing tagged.")
     elif len(tagged) / len(text) < 0.8  or len(tagged) / len(text) > 1.2: 
@@ -93,14 +92,12 @@ def main(plaintextfolder, taggedfolder, language, sanitycheck):
     print("\n--preprocess")
     if not os.path.exists(taggedfolder):
         os.makedirs(taggedfolder)
-    counter = 0
     files = glob.glob(plaintextfolder + "*.txt")
     if len(files) == 0:
         print('something is wrong. No text data found!')
     else:
-        for file in files:
+        for counter, file in enumerate(files, start=1):
             filename, ext = os.path.basename(file).split(".")
-            counter +=1
             print("next: file", counter, ":", filename)
             text = read_plaintext(file)
             tagged = run_treetagger(text, language)
