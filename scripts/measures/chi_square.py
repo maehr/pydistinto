@@ -33,6 +33,5 @@ def chisquare_test (absolute1, absolute2, p_value = False):
     if p_value == True:
         return chi_square_full
 
-def main (absolute1, absolute2, p_value = False):
-    chi_square = chisquare_test(absolute1, absolute2, p_value)
-    return chi_square
+def main(absolute1, absolute2, p_value = False):
+    return chisquare_test(absolute1, absolute2, p_value)

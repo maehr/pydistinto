@@ -12,7 +12,7 @@ def Wilcoxon_ranksum_test (absolute1, absolute2, p_value = False):
     """
     This function implements Wilcoxon rank sum test (https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test)
     """
-    
+
     ranksum_t_results = []
     ranksum_count = 0
     while ranksum_count < len(absolute1):
@@ -26,6 +26,5 @@ def Wilcoxon_ranksum_test (absolute1, absolute2, p_value = False):
     if p_value == True:
         return ranksum_full
 
-def main (absolute1, absolute2, p_value = False):
-    wilcoxon_ranksum = Wilcoxon_ranksum_test(absolute1, absolute2, p_value)
-    return wilcoxon_ranksum
+def main(absolute1, absolute2, p_value = False):
+    return Wilcoxon_ranksum_test(absolute1, absolute2, p_value)

@@ -37,7 +37,7 @@ def save_tagged(taggedfolder, filename, tagged):
     """
     Takes the spacy output and writes it to a CSV file.
     """
-    taggedfilename = taggedfolder + "/" + filename + ".csv"
+    taggedfilename = f"{taggedfolder}/{filename}.csv"
     with open(taggedfilename, "w", encoding="utf-8") as outfile:
         writer = csv.writer(outfile, delimiter='\t')
         for token in tagged:
@@ -45,7 +45,7 @@ def save_tagged(taggedfolder, filename, tagged):
                 #print(token_row)
                 writer.writerow([token.text, token.pos_, token.lemma_])
 
-def sanity_check(text, tagged): 
+def sanity_check(text, tagged):
     """
     Performs a simple sanity check on the data. 
     Checks number of words in inpu text. 
@@ -54,10 +54,10 @@ def sanity_check(text, tagged):
     """
     text = re.sub("([,.:;!?])", " \1", text)
     text = re.split("\s+", text)
-    print("number of words", len(text)) 
-    print(text[0:10])
+    print("number of words", len(text))
+    print(text[:10])
     print("number of lines", len(tagged))
-    print(tagged[0:10])
+    print(tagged[:10])
     if len(tagged) == 0: 
         print("Sanity check: Tagging error: nothing tagged.")
     elif len(tagged) / len(text) < 0.8  or len(tagged) / len(text) > 1.2: 
@@ -151,14 +151,11 @@ def main(plaintextfolder, taggedfolder, language, sanitycheck='no'):
         os.makedirs(taggedfolder)
     if not os.path.exists(plaintextfolder):
         raise ValueError("Please make sure the the name of the folder with your plain text data is 'corpus'!")
-    else:
-        counter = 0
-        for file in glob.glob(plaintextfolder + "*.txt"):
-            filename, ext = os.path.basename(file).split(".")
-            counter += 1
-            print("next: file", counter, ":", filename)
-            text = read_plaintext(file)
-            tagged = nlp(text)
-            save_tagged(taggedfolder, filename, tagged)
-            if sanitycheck == "yes": 
-                sanity_check(text, tagged)
+    for counter, file in enumerate(glob.glob(f"{plaintextfolder}*.txt"), start=1):
+        filename, ext = os.path.basename(file).split(".")
+        print("next: file", counter, ":", filename)
+        text = read_plaintext(file)
+        tagged = nlp(text)
+        save_tagged(taggedfolder, filename, tagged)
+        if sanitycheck == "yes": 
+            sanity_check(text, tagged)

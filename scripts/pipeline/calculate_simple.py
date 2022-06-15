@@ -42,16 +42,13 @@ def make_idlists(metadatafile, separator, contrast):
             list2 = list(metadata[metadata[contrast[0]].isin([contrast[2]])].index)
             #print("list1", list1)
             #print("list2", list2)
-        elif contrast[0] == "random":
+        else:
             allidnos = list(metadata.loc[:, "idno"])
             allidnos = random.sample(allidnos, len(allidnos))
-            list1 = allidnos[:int(len(allidnos)/2)]
-            list2 = allidnos[int(len(allidnos)/2):]
-            #print(list1[0:5])
-            #print(list2[0:5])
-        idlists = [list1, list2]
+            list1 = allidnos[:len(allidnos) // 2]
+            list2 = allidnos[len(allidnos) // 2:]
         #print(idlists)
-        return idlists
+        return [list1, list2]
 
 
 def filter_dtm(dtmfolder, parameterstring, idlists, absolutefreqs, relativefreqs, binaryfreqs, tf_frame):
@@ -63,9 +60,9 @@ def filter_dtm(dtmfolder, parameterstring, idlists, absolutefreqs, relativefreqs
     dtmfile = dtmfolder + "dtm_"+parameterstring+"_binaryfreqs.csv"
     #print(dtmfile)
     #print(idlists)
-    ids1 = "|".join([str(idno)+".*" for idno in idlists[0]])
+    ids1 = "|".join([f"{str(idno)}.*" for idno in idlists[0]])
     print(ids1)
-    ids2 = "|".join([str(id)+".*" for id in idlists[1]])
+    ids2 = "|".join([f"{str(id)}.*" for id in idlists[1]])
     #print(ids2)
     binary = binaryfreqs
     relative = relativefreqs
@@ -126,22 +123,21 @@ def get_indicators(binary1, binary2, relative1, relative2, tf_frame1, tf_frame2)
     return docprops1, docprops2, relfreqs1, relfreqs2, tf_framefreqs1, tf_framefreqs2
 
 
-def Deviation_of_proportions (absolute, segmentlength):
+def Deviation_of_proportions(absolute, segmentlength):
     """
     This function implements Gries "deviation of proportions" (Gries, 2008. DOI: https://doi.org/10.1075/ijcl.13.4.02gri)
     """
-    segnum = len(absolute.columns.values)
     if segmentlength == 'text':
         seglens = list(absolute.sum())
     else:
+        segnum = len(absolute.columns.values)
         seglens = [segmentlength] * segnum
     crpsize = sum(seglens)
     totalfreqs = np.sum(absolute, axis=1)
     expprops = np.array(seglens) / crpsize
     obsprops = absolute.div(totalfreqs, axis=0)
     obsprops = obsprops.fillna(0)#(expprops1[0]) # was: expprops1[0]
-    devprops = (np.sum(abs(expprops - obsprops), axis=1) /2 ) #/ (1 - min(expprops1))
-    return devprops
+    return (np.sum(abs(expprops - obsprops), axis=1) /2 )
 
 
 def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relfreqs2, logaddition, segmentlength, idlists, tf_framefreqs1, tf_framefreqs2):
@@ -163,7 +159,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
         print("Something went wrong while calculating 'original Zeta'")
         zeta_sd0 = pd.Series()
         scaler = prp.MinMaxScaler(feature_range=(-1,1))
-    
+
     print("---calculating scores: 2/9, 'Zeta_log2-transformed'---")
     try:
         # sd2 - Subtraction, docprops, log2-transformed
@@ -176,7 +172,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Zeta_log2-transformed'")
         zeta_sd2 = pd.Series()
-        
+
     print("---calculating scores: 3/9, 'ratio of relative frequencies'---")
     try:
         rrf_dr0 = (relfreqs1 + divaddition) / (relfreqs2 + divaddition)
@@ -188,7 +184,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'ratio of relative frequencies'")
         rrf_dr0 = pd.Series()
-        
+
     print("---calculating scores: 4/9, 'Eta, deviation of proportions based distinctiveness'---")
     # == Calculate subtraction variants ==
     # sg0 - Subtraction, devprops, untransformed a.k.a. "dpd", ("g" for Gries)
@@ -204,7 +200,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Eta, deviation of proportions based distinctiveness'")
         eta_sg0 = pd.Series()
-        
+
     #Calculate Welshs-t-test
     print("---calculating scores: 5/9, 'Welshs-t-test'---")
     try:
@@ -216,7 +212,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Welshs-t-test'")
         welsh_t_value = pd.Series()    
-    
+
     #Calculate Wilcoxon rank-sum test
     print("---calculating scores: 6/9, 'Wilcoxon rank-sum test'---")
     try:
@@ -252,7 +248,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Chi-squared test'")
         chi_square_value = pd.Series()
-        
+
     #Calculate Log-likelihood-Ratio test
     print("---calculating scores: 8/9, 'Log-likelihood-Ratio test'---")
     try:
@@ -264,7 +260,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Log-likelihood-Ratio test'")
         LLR_value = pd.Series()
-        
+
     print("---calculating scores; 9/9, 'Tf-idf weighted absolutefreqs absbased distinctiveness'---")
     try:
         tf_idf = tf_framefreqs1 - tf_framefreqs2
@@ -275,7 +271,7 @@ def calculate_scores(docprops1, docprops2, absolute1, absolute2, relfreqs1, relf
     except:
         print("Something went wrong while calculating 'Tf-idf weighted absolutefreqs absbased distinctiveness'")
         tf_idf = pd.Series()
-        
+
     return zeta_sd0, zeta_sd2, rrf_dr0, eta_sg0, welsh_t_value, ranksumtest_value, chi_square_value, LLR_value, tf_idf #KLD_value, chi_square_value, LLR_value, tf_idf
 
 
@@ -287,17 +283,6 @@ def get_meanrelfreqs(dtmfolder, parameterstring, relativefreqs):
     meanrelfreqs = pd.Series(data=meanrelfreqs, index=meanrelfreqs_index)
     print("\nmeanrelfreqs_series\n", meanrelfreqs.head(10))
     return meanrelfreqs
-    """
-    dtmfile = dtmfolder + "dtm_"+parameterstring+"_relativefreqs.csv"
-    with open(dtmfile, "r", encoding='utf-8') as infile:
-        meanrelfreqs = pd.read_csv(infile, sep="\t", index_col="idno").T
-        print("\nrelfreqs_df\n", meanrelfreqs.head())
-        meanrelfreqs_index = meanrelfreqs.index
-        meanrelfreqs = np.mean(meanrelfreqs, axis=1)*1000
-        meanrelfreqs = pd.Series(data=meanrelfreqs, index=meanrelfreqs_index)
-        print("\nmeanrelfreqs_series\n", meanrelfreqs.head(10))
-        return meanrelfreqs
-    """
 
 def combine_results(docprops1, docprops2, relfreqs1, relfreqs2, meanrelfreqs, zeta_sd0, zeta_sd2, rrf_dr0, eta_sg0, welsh, ranksum, chi_square, LLR, tf_idf):
     #print(len(docprops1), len(docprops2), len(relfreqs1), len(relfreqs2), len(devprops1), len(devprops2), len(meanrelfreqs), len(sd0), len(sd2), len(sr0), len(sr2), len(sg0), len(sg2), len(dd0), len(dd2), len(dr0), len(dr2), len(dg0), len(dg2))
@@ -355,9 +340,12 @@ def main(datafolder, dtmfolder, metadatafile, separator, contrast, logaddition, 
     print("--calculate")
     if not os.path.exists(resultsfolder):
         os.makedirs(resultsfolder)
-    parameterstring = str(segmentlength) +"-"+ str(featuretype[0]) +"-"+ str(featuretype[1])
+    parameterstring = (
+        f"{str(segmentlength)}-{str(featuretype[0])}-{str(featuretype[1])}"
+    )
+
     #print(parameterstring)
-    contraststring = str(contrast[0]) +"_"+ str(contrast[2]) +"-"+ str(contrast[1])
+    contraststring = f"{str(contrast[0])}_{str(contrast[2])}-{str(contrast[1])}"
     #print(contraststring)
     resultsfile = resultsfolder + "results_" + parameterstring +"_"+ contraststring +".csv"
     idlists = make_idlists(metadatafile, separator, contrast)

@@ -4,6 +4,7 @@ Created on Sun Jul 18 23:34:41 2021
 
 @author: KeliDu
 """
+
 print("pydistinto is running, this may take a few minutes...")
 
 """
@@ -53,7 +54,7 @@ metadatafile = join(datadir, "metadata.csv")
 stoplistfile = join(datadir, "stoplist.txt")
 
 # It is recommended not to change these
-outputdir = join(workdir, "output_" + os.path.basename(datadir))
+outputdir = join(workdir, f"output_{os.path.basename(datadir)}")
 taggedfolder = join(outputdir, "tagged", "")
 segmentfolder = join(outputdir, "segments1000", "")
 datafolder = join(outputdir, "results", "")
@@ -119,4 +120,4 @@ droplist = []
 visualize.zetabarchart(segmentlength, featuretype, contrast, measures, numfeatures, droplist, resultsfolder, plotfolder)
 
 
-print('Job done. Now you can find the figures in: ' + plotfolder)
+print(f'Job done. Now you can find the figures in: {plotfolder}')

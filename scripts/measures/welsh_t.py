@@ -28,6 +28,5 @@ def Welshs_t_test (absolute1, absolute2, p_value = False):
     if p_value == True:
         return welsh_t_df
 
-def main (absolute1, absolute2, p_value = False):
-    welsh_t = Welshs_t_test(absolute1, absolute2, p_value)
-    return welsh_t
+def main(absolute1, absolute2, p_value = False):
+    return Welshs_t_test(absolute1, absolute2, p_value)

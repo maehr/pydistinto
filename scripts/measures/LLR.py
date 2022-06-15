@@ -34,6 +34,5 @@ def LLR_test (absolute1, absolute2, p_value = False):
     if p_value == True:
         return LLR_full
 
-def main (absolute1, absolute2, p_value = False):
-    LLR = LLR_test(absolute1, absolute2, p_value)
-    return LLR
+def main(absolute1, absolute2, p_value = False):
+    return LLR_test(absolute1, absolute2, p_value)
